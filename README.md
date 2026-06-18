@@ -1,2 +1,147 @@
-# risck-chess
-Summer Research Project under Dr. Justin Schroeder at Dakota State University.
+# RISCK: Lichess Time-Scramble Data Analysis Pipeline
+
+📖 **[Read the full article and case study on my portfolio](https://yelarys.dev/blog/risck-analysis-pipeline)**
+
+---
+
+## Abstract
+
+This project is a computational research pipeline that processes **45+ GB of raw Lichess game data** to isolate and analyze a specific time-scramble tactic in online speed chess: the **RISCK** (Random Inferior Sacrificial Check to King).
+
+A RISCK is defined as an intentional, objectively inferior piece sacrifice delivered directly adjacent to the opponent's king while the opponent is under extreme time pressure (≤ 5 seconds). Despite being a mathematically losing move (evaluation drop ≥ 400 centipawns), this research demonstrates that executing a RISCK yields a **76.17% win rate** across **N = 64,121** verified instances spanning three months of Lichess data (February–April 2026).
+
+### Key Findings
+
+| Metric | RISCK Group | Control Group |
+|---|:---:|:---:|
+| **Win Rate** | 76.17% | 82.52% |
+| **Reaction Time (R_O)** | 1.24s | 1.28s |
+| **Sample Size (N)** | 64,121 | 64,500 |
+
+### Visual Data
+![Win Rate Comparison](./visuals/fig1_winrate.png)
+![Reaction Time Comparison](./visuals/fig2_reaction.png)
+
+> Despite sacrificing material worth ≥ 400 centipawns, RISCK executors retain a 76% win rate — only ~6 percentage points below players who deliver *mathematically sound* checks under identical time pressure.
+
+---
+
+## Methodology: Two-Tiered Funnel
+
+The pipeline uses a two-phase filtering approach to isolate True RISCKs from ~270 million games:
+
+### Phase 1 — SQL Broad Filter (DuckDB + `aixchess` Extension)
+Scans Parquet files to extract all candidate checks meeting:
+- **Opponent Time Pressure:** T_O ≤ 5 seconds
+- **Objective Blunder:** ΔE ≤ -400 centipawns
+- **Forcing Move:** Delivers check
+
+### Phase 2 — Python Geometric Filter (`python-chess`)
+Rebuilds each board position and verifies:
+- **Major Piece:** The checking piece is a Knight, Bishop, Rook, or Queen
+- **Geometric Adjacency:** The piece is placed directly adjacent to the opponent's king (`chess.square_distance ≤ 1`)
+- **Legally Capturable:** The sacrifice is completely undefended
+
+---
+
+## Tech Stack
+
+| Tool | Role |
+|---|---|
+| **DuckDB** (v1.5.3 CLI) | High-performance SQL engine for scanning 15GB Parquet files |
+| **`aixchess`** | DuckDB community extension for decoding Lichess binary move data |
+| **Python 3** | Orchestration, geometric filtering, statistical analysis |
+| **`python-chess`** | Board reconstruction and legal move validation |
+| **Pandas** | DataFrame operations and CSV aggregation |
+| **Matplotlib / Seaborn** | Publication-quality data visualization |
+| **Nix** | Reproducible HPC environment (see `shell.nix`) |
+| **Bash** | Data download automation |
+
+---
+
+## Repository Structure
+
+```
+risck-chess/
+├── data/                          # Raw Parquet files (not tracked — 45+ GB)
+│
+├── phase1_filter/                 # Generated DuckDB SQL queries
+│   └── phase1_filter_YYYY-MM.sql
+├── control_filter/                # Control group SQL queries
+│   └── control_filter_YYYY-MM.sql
+│
+├── candidate_riscks/              # Phase 1 output — intermediate CSVs (not tracked)
+│   └── candidate_riscks_YYYY-MM.csv
+├── true_riscks/                   # Phase 2 output — verified RISCK datasets ✓
+│   └── true_riscks_YYYY-MM.csv
+├── control_checks/                # Control group datasets ✓
+│   └── control_checks_YYYY-MM.csv
+├── results/                       # Final aggregated statistics ✓
+│   ├── sensitivity_analysis_results.csv
+│   ├── master_scaling_results_T5_E400.csv
+│   └── control_group_results_T5.csv
+├── visuals/                       # Publication-ready figures
+│   ├── fig1_winrate.png
+│   └── fig2_reaction.png
+│
+├── sensitivity_analysis.py        # Phase 2: Threshold permutation orchestrator
+├── results_scaler_T5_E400.py      # Phase 3: Multi-month scaling pipeline
+├── risck_filter.py                # Geometric adjacency filter (python-chess)
+├── risck_winrate.py               # Win rate calculator
+├── risck_opponent_reaction.py     # Opponent reaction time (R_O) calculator
+├── control_opponent_reaction.py   # Control group extraction & reaction time
+├── control_winrate.py             # Control group win rate calculator
+├── generate_visuals.py            # Matplotlib/Seaborn chart generation
+├── download_data.sh               # Automated Parquet download script
+├── shell.nix                      # Reproducible Nix environment
+└── LICENSE                        # MIT License
+```
+
+---
+
+## Reproduction
+
+### 1. Enter the Nix Environment
+```bash
+nix-shell shell.nix
+```
+
+### 2. Download Raw Data
+```bash
+bash download_data.sh
+```
+This downloads the `low_compression` Parquet files from [thomasd1/aix-lichess-database](https://huggingface.co/datasets/thomasd1/aix-lichess-database) on Hugging Face into the `./data/` directory.
+
+### 3. Download DuckDB Binary
+Download the DuckDB CLI executable (v1.5.3 or compatible) from the official website and place the `duckdb` binary directly in the root directory of this project so the Python orchestrator can execute it via `./duckdb`.
+
+### 4. Run the Sensitivity Analysis (Phase 2)
+```bash
+python sensitivity_analysis.py
+```
+
+### 5. Run the Multi-Month Scaling Pipeline (Phase 3)
+```bash
+python results_scaler_T5_E400.py
+```
+
+### 6. Generate Visualizations
+```bash
+python generate_visuals.py
+```
+
+---
+
+## Data Source
+
+All data is sourced from [Thomas Daniels' Aix-compatible Lichess Database](https://huggingface.co/datasets/thomasd1/aix-lichess-database) (`low_compression` Parquet format).
+
+---
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+## Author
+
+**Yelarys Seidin** — Summer Research Project under Dr. Justin Schroeder at Dakota State University.

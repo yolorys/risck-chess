@@ -1,12 +1,19 @@
 import pandas as pd
 import chess
+import sys
+
+if len(sys.argv) < 2:
+    print("Usage: python risck_filter.py <MONTH>")
+    sys.exit(1)
+
+month = sys.argv[1]
 
 print("Starting Phase 2: Full Dataset Geometric RISCK Filter...")
 
 # 1. Load the Phase 1 Pilot Data
-df = pd.read_csv('spite_checks_pilot.csv')
-total_spite_checks = len(df)
-print(f"Loaded {total_spite_checks} potential spite checks. Processing...")
+df = pd.read_csv(f'./candidate_riscks/candidate_riscks_{month}.csv')
+total_candidates = len(df)
+print(f"Loaded {total_candidates} candidate RISCKs. Processing...")
 
 true_riscks = []
 error_count = 0
@@ -16,7 +23,7 @@ for index, row in df.iterrows():
     
     # Print a progress update every 10,000 rows
     if index > 0 and index % 10000 == 0:
-        print(f"Processed {index}/{total_spite_checks} rows... Found {len(true_riscks)} RISCKs so far.")
+        print(f"Processed {index}/{total_candidates} rows... Found {len(true_riscks)} RISCKs so far.")
         
     game_id = row['lichess_id']
     target_ply = int(row['ply'])
@@ -49,10 +56,10 @@ for index, row in df.iterrows():
 final_df = pd.DataFrame(true_riscks)
 if not final_df.empty:
     final_df = final_df.drop(columns=['move_list'])
-final_df.to_csv('true_riscks_dataset.csv', index=False)
+final_df.to_csv(f'./true_riscks/true_riscks_{month}.csv', index=False)
 
 print(f"\nPhase 2 Complete!")
-print(f"Found {len(true_riscks)} True RISCKs out of {total_spite_checks} total candidates.")
+print(f"Found {len(true_riscks)} True RISCKs out of {total_candidates} total candidates.")
 if error_count > 0:
     print(f"Note: {error_count} games were skipped due to PGN/UCI parsing errors.")
-print("Saved to 'true_riscks_dataset.csv'.")
+print(f"Saved to './true_riscks/true_riscks_{month}.csv'.")

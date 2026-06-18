@@ -1,5 +1,38 @@
-*.csv
-
+# ===========================
+# Heavy Data (45+ GB Parquet files)
+# ===========================
+/data/
 *.parquet
 
-duckdb
+# ===========================
+# DuckDB Binary
+# ===========================
+/duckdb
+
+# ===========================
+# Candidate RISCKs (~100MB intermediate CSVs)
+# ===========================
+/candidate_riscks/
+
+# ===========================
+# Environment & OS
+# ===========================
+.env
+.DS_Store
+.vscode/
+
+# ===========================
+# Private Notes (not for public)
+# ===========================
+PROJECT_CONTEXT.md
+TODO.md
+
+# ===========================
+# ALLOW: Final lightweight datasets (safe to publish)
+# ===========================
+!/results/
+!/results/**
+!/true_riscks/
+!/true_riscks/**
+!/control_checks/
+!/control_checks/**

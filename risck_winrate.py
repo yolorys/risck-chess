@@ -1,9 +1,16 @@
 import pandas as pd
+import sys
+
+if len(sys.argv) < 2:
+    print("Usage: python risck_winrate.py <MONTH>")
+    sys.exit(1)
+
+month = sys.argv[1]
 
 print("Calculating Global Win Rate (W_SC)...")
 
 # 1. Load the finalized RISCK dataset
-df = pd.read_csv('true_riscks_dataset.csv')
+df = pd.read_csv(f'./true_riscks/true_riscks_{month}.csv')
 total_riscks = len(df)
 
 if total_riscks == 0:
@@ -12,8 +19,8 @@ if total_riscks == 0:
 
 # 2. Filter for games where the player who executed the RISCK actually won
 # '1-0' means White won, '0-1' means Black won
-white_wins = df[(df['spite_check_player'] == 'White') & (df['result'] == '1-0')]
-black_wins = df[(df['spite_check_player'] == 'Black') & (df['result'] == '0-1')]
+white_wins = df[(df['risck_player'] == 'White') & (df['result'] == '1-0')]
+black_wins = df[(df['risck_player'] == 'Black') & (df['result'] == '0-1')]
 
 total_wins = len(white_wins) + len(black_wins)
 

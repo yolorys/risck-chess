@@ -1,23 +1,30 @@
 import duckdb
 import pandas as pd
+import sys
+
+if len(sys.argv) < 2:
+    print("Usage: python risck_opponent_reaction.py <MONTH>")
+    sys.exit(1)
+
+month = sys.argv[1]
 
 print("Joining Datasets to Calculate Average Reaction Time (R_O)...")
 
 con = duckdb.connect()
 
 # 1. Load your True RISCKs into DuckDB's memory as a temporary table
-con.execute("CREATE TABLE riscks AS SELECT * FROM read_csv_auto('control_checks_dataset.csv')")
+con.execute(f"CREATE TABLE riscks AS SELECT * FROM read_csv_auto('./true_riscks/true_riscks_{month}.csv')")
 
-# 2. Perform a massive JOIN to extract the clocks for ONLY our 35,717 games
-query = """
+# 2. Perform a massive JOIN to extract the clocks for ONLY our filtered games
+query = f"""
 SELECT 
     r.lichess_id, 
     r.ply, 
-    r.spite_check_player, 
+    r.risck_player, 
     p.clocks_white, 
     p.clocks_black
 FROM riscks r
-JOIN 'aix_lichess_2026-04_low.parquet' p ON r.lichess_id = p.lichess_id
+JOIN './data/aix_lichess_{month}_low.parquet' p ON r.lichess_id = p.lichess_id
 """
 results = con.execute(query).df()
 
@@ -29,7 +36,7 @@ print("Calculating cognitive delay...")
 # 3. Calculate the time burned by the victim
 for index, row in results.iterrows():
     ply = int(row['ply'])
-    player = row['spite_check_player']
+    player = row['risck_player']
     clocks_white = row['clocks_white']
     clocks_black = row['clocks_black']
     
