@@ -69,7 +69,7 @@ for month in months:
     print(f"Processing Control Group: {month}")
     print(f"============================")
 
-    # --- Phase 1: DuckDB extraction with random sampling ---
+    # --- DuckDB extraction with random sampling ---
     sql_query = sql_template.format(MONTH=month, SAMPLE_SIZE=SAMPLE_SIZE)
     sql_file = f"./control_filter/control_filter_{month}.sql"
     with open(sql_file, "w") as f:
@@ -78,7 +78,7 @@ for month in months:
     print(f"Running DuckDB control extraction for {month}...")
     subprocess.run(["./duckdb", "-unsigned", "-c", f".read {sql_file}"], check=True)
 
-    # --- Phase 2: Calculate reaction time via JOIN back to parquet ---
+    # --- Calculate reaction time via JOIN back to parquet ---
     print(f"Calculating control reaction time for {month}...")
     con = duckdb.connect()
     con.execute(f"CREATE TABLE controls AS SELECT * FROM read_csv_auto('./control_checks/control_checks_{month}.csv')")

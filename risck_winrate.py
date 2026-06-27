@@ -7,7 +7,7 @@ if len(sys.argv) < 2:
 
 month = sys.argv[1]
 
-print("Calculating Global Win Rate (W_SC)...")
+print("Calculating Global RISCK Win Rate ...")
 
 # 1. Load the finalized RISCK dataset
 df = pd.read_csv(f'./true_riscks/true_riscks_{month}.csv')
@@ -29,5 +29,5 @@ win_rate = (total_wins / total_riscks) * 100
 
 print(f"Total True RISCKs analyzed: {total_riscks}")
 print(f"Total games WON after executing a RISCK: {total_wins}")
-print(f"\n--- GLOBAL WIN RATE (W_SC) ---")
+print(f"\n--- GLOBAL RISCK WIN RATE ---")
 print(f"{win_rate:.2f}%\n")

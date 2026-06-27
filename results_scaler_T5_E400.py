@@ -63,22 +63,22 @@ for month in months:
     print(f"============================")
     
     sql_query = sql_template.format(MONTH=month)
-    with open(f"./phase1_filter/phase1_filter_{month}.sql", "w") as f:
+    with open(f"./risck_sql_filter/risck_sql_filter_{month}.sql", "w") as f:
         f.write(sql_query)
         
-    print(f"Running Phase 1 (DuckDB) for {month}...")
-    subprocess.run(["./duckdb", "-unsigned", "-c", f".read ./phase1_filter/phase1_filter_{month}.sql"], check=True)
+    print(f"Running Step 1 (DuckDB SQL broad filter) for {month}...")
+    subprocess.run(["./duckdb", "-unsigned", "-c", f".read ./risck_sql_filter/risck_sql_filter_{month}.sql"], check=True)
     
-    print(f"Running Phase 2 (risck_filter.py) for {month}...")
-    subprocess.run(["python", "risck_filter.py", month], check=True)
+    print(f"Running Step 2 (risck_geometric_filter.py) for {month}...")
+    subprocess.run(["python", "risck_geometric_filter.py", month], check=True)
     
-    print(f"Running Phase 3 (Win Rate & Reaction Time) for {month}...")
+    print(f"Running scripts for Win Rate & Reaction Time for {month}...")
     wr_out = subprocess.run(["python", "risck_winrate.py", month], capture_output=True, text=True, check=True).stdout
     ro_out = subprocess.run(["python", "risck_opponent_reaction.py", month], capture_output=True, text=True, check=True).stdout
     
     # Parse Win Rate output
-    wr_match = re.search(r"--- GLOBAL WIN RATE \(W_SC\) ---\n([\d.]+)%", wr_out)
-    win_rate = float(wr_match.group(1)) if wr_match else 0.0
+    wr_match = re.search(r"--- GLOBAL RISCK WIN RATE ---\n([\d.]+)%", wr_out)
+    month_wr = float(wr_match.group(1)) if wr_match else 0.0
     
     wins_match = re.search(r"Total games WON after executing a RISCK: (\d+)", wr_out)
     month_wins = int(wins_match.group(1)) if wins_match else 0
@@ -96,7 +96,7 @@ for month in months:
     # Write individual month result
     with open("./results/master_scaling_results_T5_E400.csv", "a", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow([month, f"{win_rate:.2f}%", f"{month_ro:.2f}", month_n])
+        writer.writerow([month, f"{month_wr:.2f}%", f"{month_ro:.2f}", month_n])
     
     # Aggregate
     total_n += month_n
@@ -104,7 +104,7 @@ for month in months:
     total_ro_games += month_ro_games
     total_ro_time += (month_ro * month_ro_games)
     
-    print(f"Month {month} Results: Win Rate {win_rate:.2f}%, R_O {month_ro:.2f}s, N {month_n}")
+    print(f"Month {month} Results: Win Rate {month_wr:.2f}%, R_O {month_ro:.2f}s, N {month_n}")
 
 # Final Aggregation
 overall_win_rate = (total_wins / total_n) * 100 if total_n > 0 else 0
@@ -115,7 +115,7 @@ with open("./results/master_scaling_results_T5_E400.csv", "a", newline="") as f:
     writer.writerow(["ALL_MONTHS_COMBINED", f"{overall_win_rate:.2f}%", f"{overall_ro:.2f}", total_n])
 
 print("\n============================")
-print("PHASE 3 COMPLETE!")
+print("T5_E400 Scaling Reults COMPLETE!")
 print(f"Total Combined N: {total_n}")
 print(f"Overall Win Rate: {overall_win_rate:.2f}%")
 print(f"Overall Reaction Time: {overall_ro:.2f}s")

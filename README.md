@@ -1,6 +1,6 @@
 # RISCK: Lichess Time-Scramble Data Analysis Pipeline
 
-📖 **[Read the full article and case study on my portfolio](https://yelarys.dev/blog/risck-analysis-pipeline)**
+**[Read the full article and case study on my portfolio](https://yelarys.dev/blog/risck-analysis-pipeline)**
 
 ---
 
@@ -26,17 +26,17 @@ A RISCK is defined as an intentional, objectively inferior piece sacrifice deliv
 
 ---
 
-## Methodology: Two-Tiered Funnel
+## Methodology: Two-Step Filter
 
-The pipeline uses a two-phase filtering approach to isolate True RISCKs from ~270 million games:
+The pipeline uses a two-step filtering approach to isolate true RISCKs from ~270 million games:
 
-### Phase 1 — SQL Broad Filter (DuckDB + `aixchess` Extension)
+### Step 1 — SQL Broad Filter (DuckDB + `aixchess` Extension)
 Scans Parquet files to extract all candidate checks meeting:
 - **Opponent Time Pressure:** T_O ≤ 5 seconds
 - **Objective Blunder:** ΔE ≤ -400 centipawns
 - **Forcing Move:** Delivers check
 
-### Phase 2 — Python Geometric Filter (`python-chess`)
+### Step 2 — Python Geometric Filter (`python-chess`)
 Rebuilds each board position and verifies:
 - **Major Piece:** The checking piece is a Knight, Bishop, Rook, or Queen
 - **Geometric Adjacency:** The piece is placed directly adjacent to the opponent's king (`chess.square_distance ≤ 1`)
@@ -53,7 +53,7 @@ Rebuilds each board position and verifies:
 | **Python 3** | Orchestration, geometric filtering, statistical analysis |
 | **`python-chess`** | Board reconstruction and legal move validation |
 | **Pandas** | DataFrame operations and CSV aggregation |
-| **Matplotlib / Seaborn** | Publication-quality data visualization |
+| **Matplotlib / Seaborn** | Data visualization |
 | **Nix** | Reproducible HPC environment (see `shell.nix`) |
 | **Bash** | Data download automation |
 
@@ -65,28 +65,28 @@ Rebuilds each board position and verifies:
 risck-chess/
 ├── data/                          # Raw Parquet files (not tracked — 45+ GB)
 │
-├── phase1_filter/                 # Generated DuckDB SQL queries
-│   └── phase1_filter_YYYY-MM.sql
+├── risck_sql_filter/              # RISCK group SQL queries
+│   └── risck_sql_filter_YYYY-MM.sql
 ├── control_filter/                # Control group SQL queries
 │   └── control_filter_YYYY-MM.sql
 │
-├── candidate_riscks/              # Phase 1 output — intermediate CSVs (not tracked)
+├── candidate_riscks/              # Step 1 output — intermediate CSVs (not tracked)
 │   └── candidate_riscks_YYYY-MM.csv
-├── true_riscks/                   # Phase 2 output — verified RISCK datasets ✓
+├── true_riscks/                   # Step 2 output — verified RISCK datasets
 │   └── true_riscks_YYYY-MM.csv
-├── control_checks/                # Control group datasets ✓
+├── control_checks/                # Control group datasets
 │   └── control_checks_YYYY-MM.csv
-├── results/                       # Final aggregated statistics ✓
+├── results/                       # Final aggregated statistics
 │   ├── sensitivity_analysis_results.csv
 │   ├── master_scaling_results_T5_E400.csv
 │   └── control_group_results_T5.csv
-├── visuals/                       # Publication-ready figures
+├── visuals/                       # Data visuals
 │   ├── fig1_winrate.png
 │   └── fig2_reaction.png
 │
-├── sensitivity_analysis.py        # Phase 2: Threshold permutation orchestrator
-├── results_scaler_T5_E400.py      # Phase 3: Multi-month scaling pipeline
-├── risck_filter.py                # Geometric adjacency filter (python-chess)
+├── sensitivity_analysis.py        # Threshold permutation orchestrator
+├── results_scaler_T5_E400.py      # Multi-month scaling pipeline
+├── risck_geometric_filter.py      # Geometric adjacency filter (python-chess)
 ├── risck_winrate.py               # Win rate calculator
 ├── risck_opponent_reaction.py     # Opponent reaction time (R_O) calculator
 ├── control_opponent_reaction.py   # Control group extraction & reaction time
@@ -115,12 +115,12 @@ This downloads the `low_compression` Parquet files from [thomasd1/aix-lichess-da
 ### 3. Download DuckDB Binary
 Download the DuckDB CLI executable (v1.5.3 or compatible) from the official website and place the `duckdb` binary directly in the root directory of this project so the Python orchestrator can execute it via `./duckdb`.
 
-### 4. Run the Sensitivity Analysis (Phase 2)
+### 4. Run the Sensitivity Analysis
 ```bash
 python sensitivity_analysis.py
 ```
 
-### 5. Run the Multi-Month Scaling Pipeline (Phase 3)
+### 5. Run the Multi-Month Scaling Pipeline
 ```bash
 python results_scaler_T5_E400.py
 ```

@@ -3,14 +3,14 @@ import chess
 import sys
 
 if len(sys.argv) < 2:
-    print("Usage: python risck_filter.py <MONTH>")
+    print("Usage: python risck_geometric_filter.py <MONTH>")
     sys.exit(1)
 
 month = sys.argv[1]
 
-print("Starting Phase 2: Full Dataset Geometric RISCK Filter...")
+print("Starting Step 2: Geometric RISCK Filter...")
 
-# 1. Load the Phase 1 Pilot Data
+# 1. Load the Step 1 (DuckDB) Data
 df = pd.read_csv(f'./candidate_riscks/candidate_riscks_{month}.csv')
 total_candidates = len(df)
 print(f"Loaded {total_candidates} candidate RISCKs. Processing...")
@@ -58,7 +58,7 @@ if not final_df.empty:
     final_df = final_df.drop(columns=['move_list'])
 final_df.to_csv(f'./true_riscks/true_riscks_{month}.csv', index=False)
 
-print(f"\nPhase 2 Complete!")
+print(f"\nStep 2 (Geometric RISCK Filter) Complete!")
 print(f"Found {len(true_riscks)} True RISCKs out of {total_candidates} total candidates.")
 if error_count > 0:
     print(f"Note: {error_count} games were skipped due to PGN/UCI parsing errors.")

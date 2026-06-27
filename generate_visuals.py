@@ -27,7 +27,7 @@ combined_ro = float(combined['Reaction_Time'])
 combined_n = int(combined['N'])
 
 # ============================================================
-# FIGURE 1: The Lethality — RISCK Win Rate vs Baseline
+# FIGURE 1: RISCK Win Rate vs Baseline
 # ============================================================
 fig1, ax1 = plt.subplots(figsize=(7, 6))
 
@@ -60,7 +60,7 @@ plt.close(fig1)
 print("Saved fig1_winrate.png")
 
 # ============================================================
-# FIGURE 2: The Reflex — RISCK vs Control Reaction Time
+# FIGURE 2: RISCK vs Control Reaction Time
 # ============================================================
 fig2, ax2 = plt.subplots(figsize=(7, 6))
 
