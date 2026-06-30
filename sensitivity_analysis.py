@@ -3,6 +3,10 @@ import subprocess
 import re
 import csv
 
+# Create required directory structure
+for folder in ["./candidate_riscks", "./true_riscks", "./results", "./risck_sql_filter", "./control_checks", "./control_filter"]:
+    os.makedirs(folder, exist_ok=True)
+
 # Configuration: Target dataset and threshold permutations
 DATA_MONTH = "2026-04"
 

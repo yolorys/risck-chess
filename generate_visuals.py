@@ -4,6 +4,11 @@ matplotlib.use('Agg')  # Headless backend for HPC cluster
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import os
+
+# Create required directory structure
+for folder in ["./results", "./visuals"]:
+    os.makedirs(folder, exist_ok=True)
 
 # ============================================================
 # Configuration

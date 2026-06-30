@@ -3,6 +3,10 @@ import subprocess
 import re
 import csv
 
+# Create required directory structure
+for folder in ["./candidate_riscks", "./true_riscks", "./results", "./risck_sql_filter", "./control_checks", "./control_filter"]:
+    os.makedirs(folder, exist_ok=True)
+
 months = ["2026-02", "2026-03", "2026-04"]
 
 sql_template = """INSTALL aixchess FROM community;
