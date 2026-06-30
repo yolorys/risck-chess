@@ -101,34 +101,43 @@ risck-chess/
 
 ## Reproduction
 
-### 1. Enter the Nix Environment
-```bash
-nix-shell shell.nix
-```
+### Path A: Quick Evaluation (Recommended)
+This path allows you to run a quick version of the pipeline using a 10,000-row toy dataset without downloading the full 45GB data.
 
-### 2. Download Raw Data
-```bash
-bash download_data.sh
-```
-This downloads the `low_compression` Parquet files from [thomasd1/aix-lichess-database](https://huggingface.co/datasets/thomasd1/aix-lichess-database) on Hugging Face into the `./data/` directory.
+1. **Install Requirements**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Download DuckDB Binary**:
+   Download the DuckDB CLI executable (v1.5.3 or compatible) from the official website and place the `duckdb` binary directly in the root directory.
+3. **Run Pipeline**:
+   Modify the target dataset directory in the orchestration scripts (`sensitivity_analysis.py` and `results_scaler_T5_E400.py`) to point to `./data_sample/` instead of `./data/` (and only loop over the available sample month). Then execute them:
+   ```bash
+   python sensitivity_analysis.py
+   python results_scaler_T5_E400.py
+   python generate_visuals.py
+   ```
 
-### 3. Download DuckDB Binary
-Download the DuckDB CLI executable (v1.5.3 or compatible) from the official website and place the `duckdb` binary directly in the root directory of this project so the Python orchestrator can execute it via `./duckdb`.
+### Path B: Full Scientific Reproduction (45GB+)
+This path performs the full analysis on 270 million games.
 
-### 4. Run the Sensitivity Analysis
-```bash
-python sensitivity_analysis.py
-```
-
-### 5. Run the Multi-Month Scaling Pipeline
-```bash
-python results_scaler_T5_E400.py
-```
-
-### 6. Generate Visualizations
-```bash
-python generate_visuals.py
-```
+1. **Enter the Nix Environment**:
+   ```bash
+   nix-shell shell.nix
+   ```
+2. **Download Raw Data**:
+   ```bash
+   bash download_data.sh
+   ```
+   This downloads the `low_compression` Parquet files from [thomasd1/aix-lichess-database](https://huggingface.co/datasets/thomasd1/aix-lichess-database) on Hugging Face into the `./data/` directory.
+3. **Download DuckDB Binary**:
+   Download the DuckDB CLI executable (v1.5.3 or compatible) and place the `duckdb` binary directly in the root directory.
+4. **Run the Pipeline**:
+   ```bash
+   python sensitivity_analysis.py
+   python results_scaler_T5_E400.py
+   python generate_visuals.py
+   ```
 
 ---
 

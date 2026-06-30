@@ -30,6 +30,8 @@ TODO.md
 # ===========================
 # ALLOW: Final lightweight datasets (safe to publish)
 # ===========================
+!/data_sample/
+!/data_sample/**
 !/results/
 !/results/**
 !/true_riscks/
