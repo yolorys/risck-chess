@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 import re
 import csv
 
@@ -74,11 +75,11 @@ for month in months:
     subprocess.run(["./duckdb", "-unsigned", "-c", f".read ./risck_sql_filter/risck_sql_filter_{month}.sql"], check=True)
     
     print(f"Running Step 2 (risck_geometric_filter.py) for {month}...")
-    subprocess.run(["python", "risck_geometric_filter.py", month], check=True)
+    subprocess.run([sys.executable, "risck_geometric_filter.py", month], check=True)
     
     print(f"Running scripts for Win Rate & Reaction Time for {month}...")
-    wr_out = subprocess.run(["python", "risck_winrate.py", month], capture_output=True, text=True, check=True).stdout
-    ro_out = subprocess.run(["python", "risck_opponent_reaction.py", month], capture_output=True, text=True, check=True).stdout
+    wr_out = subprocess.run([sys.executable, "risck_winrate.py", month], capture_output=True, text=True, check=True).stdout
+    ro_out = subprocess.run([sys.executable, "risck_opponent_reaction.py", month], capture_output=True, text=True, check=True).stdout
     
     # Parse Win Rate output
     wr_match = re.search(r"--- GLOBAL RISCK WIN RATE ---\n([\d.]+)%", wr_out)

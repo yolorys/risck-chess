@@ -1,5 +1,6 @@
 import os
 import subprocess
+import sys
 import re
 import csv
 
@@ -80,11 +81,11 @@ for to, de in permutations:
     subprocess.run(["./duckdb", "-unsigned", "-c", f".read {sql_file}"], check=True)
     
     print("Running Step 2 (risck_geometric_filter.py)...")
-    subprocess.run(["python", "risck_geometric_filter.py", perm_id], check=True)
+    subprocess.run([sys.executable, "risck_geometric_filter.py", perm_id], check=True)
     
     print("Running scripts for Win Rate & Reaction Time...")
-    wr_out = subprocess.run(["python", "risck_winrate.py", perm_id], capture_output=True, text=True, check=True).stdout
-    ro_out = subprocess.run(["python", "risck_opponent_reaction.py", perm_id], capture_output=True, text=True, check=True).stdout
+    wr_out = subprocess.run([sys.executable, "risck_winrate.py", perm_id], capture_output=True, text=True, check=True).stdout
+    ro_out = subprocess.run([sys.executable, "risck_opponent_reaction.py", perm_id], capture_output=True, text=True, check=True).stdout
     
     wr_match = re.search(r"--- GLOBAL RISCK WIN RATE ---\n([\d.]+)%", wr_out)
     win_rate = wr_match.group(1) if wr_match else "N/A"
